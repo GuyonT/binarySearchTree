@@ -1,205 +1,129 @@
-class ListNode {
-  constructor(value) {
-    this.value = value;
-    this.nextNode = null;
+class Node {
+  constructor(data) {
+    this.data = data;
+    this.left = null;
+    this.right = null;
   }
 }
-class LinkedList {
-  constructor() {
-    this.head = null;
-    this.tail = null;
-    this.size = 0;
+
+class Tree {
+  constructor(array) {
+    this.array = array;
+    this.root = this.buildTree(this.array);
   }
 
-  append(value) {
-    let newNode = new ListNode(value);
-    console.log(newNode);
-    if (this.head === null) {
-      this.head = newNode;
-      this.tail = newNode;
-      this.size++;
-    } else {
-      this.tail.nextNode = newNode;
-      this.tail = newNode;
-      this.size++;
+  #sortArray(array) {
+    array.sort(function (a, b) {
+      return a - b;
+    });
+    let sortedArray = array.filter(function (value, index, self) {
+      return self.indexOf(value) === index;
+    });
+    return sortedArray;
+  }
+
+  buildTree(array) {
+    let sortedArray = this.#sortArray(array);
+    function recursiveTree(array, start, end) {
+      if (start > end) return null;
+      let mid = Math.floor((start + end) / 2);
+      let root = new Node(array[mid]);
+
+      root.left = recursiveTree(array, start, mid - 1);
+      root.right = recursiveTree(array, mid + 1, end);
+
+      return root;
+    }
+    return recursiveTree(sortedArray, 0, sortedArray.length - 1);
+  }
+
+  prettyPrint(node = this.root, prefix = "", isLeft = true) {
+    if (node === null) {
+      return;
+    }
+    if (node.right !== null) {
+      this.prettyPrint(
+        node.right,
+        `${prefix}${isLeft ? "│   " : "    "}`,
+        false
+      );
+    }
+    console.log(`${prefix}${isLeft ? "└── " : "┌── "}${node.data}`);
+    if (node.left !== null) {
+      this.prettyPrint(node.left, `${prefix}${isLeft ? "    " : "│   "}`, true);
     }
   }
 
-  prepend(value) {
-    let newNode = new ListNode(value);
-    if (this.head === null) {
-      this.head = newNode;
-      this.tail = newNode;
-      this.size++;
-    } else {
-      newNode.nextNode = this.head;
-      this.head = newNode;
-      this.size++;
-    }
-  }
-
-  getSize() {
-    return this.size;
-  }
-
-  getHead() {
-    return this.head.value;
-  }
-
-  getTail() {
-    return this.tail.value;
-  }
-
-  at(index) {
-    if (this.head === null || index < 0) {
-      return null;
-    }
-
-    let currentNode = this.head;
-    let i = 0;
-
-    while (i < index && currentNode !== null) {
-      currentNode = currentNode.nextNode;
-      i++;
-    }
-
-    if (currentNode === null) {
-      return null;
-    } else {
-      return currentNode.value;
-    }
-  }
-
-  pop() {
-    if (this.head === null) {
-      console.log("The list is already empty");
-    } else if (this.head === this.tail) {
-      this.head = this.tail = null;
-      this.size = 0;
-    } else {
-      let currentNode = this.head;
-      while (currentNode.nextNode !== this.tail) {
-        currentNode = currentNode.nextNode;
+  insert(value) {
+    function recursiveInsert(root, data) {
+      if (root === null) {
+        return new Node(data);
       }
-      currentNode.nextNode = null;
-      this.tail = currentNode;
-      this.size--;
+
+      if (root.data === data) {
+        return root;
+      }
+
+      if (data < root.data) {
+        root.left = recursiveInsert(root.left, data);
+      } else if (data > root.data) {
+        root.right = recursiveInsert(root.right, data);
+      }
+      return root;
     }
+
+    return recursiveInsert(this.root, value);
   }
 
-  contains(value) {
-    if (this.head === null) {
-      console.log("The list is empty");
-      return false;
-    }
-    let currentNode = this.head;
-    while (currentNode !== null) {
-      if (currentNode.value === value) {
-        return true;
-      } else {
-        currentNode = currentNode.nextNode;
+  remove(value) {
+    function recursiveRemove(root, data) {
+      if (root === null) {
+        return root;
       }
+
+      if (data < root.data) {
+        root.left = recursiveRemove(root.left, data);
+      } else if (data > root.data) {
+        root.right = recursiveRemove(root.right, data);
+      } else if (data === root.data) {
+        if (root.left === null) {
+          return root.right;
+        } else if (root.right === null) {
+          return root.left;
+        } else if (root.left && root.right) {
+          let successor = root.right;
+          while (successor && successor.left) {
+            successor = successor.left;
+          }
+          root.data = successor.data;
+          root.right = recursiveRemove(root.right, successor.data);
+        }
+      }
+      return root;
     }
-    return false;
+    return recursiveRemove(this.root, value);
   }
 
   find(value) {
-    if (this.head === null) {
-      console.log("The list is empty");
-      return null;
-    }
-    let currentNode = this.head;
-    let i = 0;
-    while (currentNode !== null) {
-      if (currentNode.value === value) {
-        return i;
-      } else {
-        currentNode = currentNode.nextNode;
-        i++;
+    function recursiveFind(root, data) {
+      if (root === null) return root;
+      if (root.data === data) {
+        return root;
+      } else if (data < root.data) {
+        return recursiveFind(root.left, data);
+      } else if (data > root.data) {
+        return recursiveFind(root.right, data);
       }
     }
-    return null;
-  }
-
-  toString() {
-    let string = "";
-    if (this.head === null) {
-      console.log("The list is empty");
-      string += `No items `;
-      return string;
-    }
-    let currentNode = this.head;
-    while (currentNode !== null) {
-      string += `( ${currentNode.value} ) -> `;
-      currentNode = currentNode.nextNode;
-    }
-    string += `null`;
-    return string;
-  }
-
-  insertAt(value, index) {
-    if (index < 0 || index > this.size) {
-      console.log("out of bounds");
-      return;
-    }
-
-    if (index === 0) {
-      this.prepend(value);
-      return;
-    } else if (index === this.size) {
-      this.append(value);
-      return;
-    }
-
-    let currentNode = this.head;
-    let i = 0;
-
-    while (i < index - 1) {
-      currentNode = currentNode.nextNode;
-      i++;
-    }
-
-    let previousNode = currentNode;
-    let newNode = new ListNode(value);
-
-    newNode.nextNode = previousNode.nextNode;
-    previousNode.nextNode = newNode;
-    this.size++;
-  }
-
-  removeAt(index) {
-    if (index < 0 || index >= this.size) {
-      console.log("out of bounds");
-      return;
-    } else if (index === 0) {
-      this.head = this.head.nextNode;
-      this.size--;
-      return;
-    }
-
-    if (index === this.size - 1) {
-      this.pop();
-      return;
-    }
-
-    let currentNode = this.head;
-    let i = 0;
-    while (i < index - 1) {
-      currentNode = currentNode.nextNode;
-      i++;
-    }
-
-    let previousNode = currentNode;
-    let nextNode = currentNode.nextNode.nextNode;
-
-    previousNode.nextNode = nextNode;
-    this.size--;
+    return recursiveFind(this.root, value);
   }
 }
 
-let list = new LinkedList();
-list.append("dog");
-list.append("cat");
-list.append("horse");
-list.prepend("snake");
-console.log(list.toString());
+let tree = new Tree([1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324]);
+console.log(tree.root);
+
+tree.prettyPrint();
+
+tree.insert(6);
+tree.remove(4);
+tree.prettyPrint();
