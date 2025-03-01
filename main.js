@@ -117,6 +117,68 @@ class Tree {
     }
     return recursiveFind(this.root, value);
   }
+
+  levelOrder(callback) {
+    if (!callback) {
+      throw new Error("Need a callback function");
+    }
+
+    let queueOrder = [this.root];
+
+    while (queueOrder.length !== 0) {
+      let currentNode = queueOrder.shift();
+      callback(currentNode);
+
+      if (currentNode.left !== null) {
+        queueOrder.push(currentNode.left);
+      }
+      if (currentNode.right !== null) {
+        queueOrder.push(currentNode.right);
+      }
+    }
+  }
+
+  inOrder(callback) {
+    if (!callback) {
+      throw new Error("Need a callback function");
+    }
+
+    function recursiveInOrder(node, callback) {
+      if (node === null) return;
+      recursiveInOrder(node.left, callback);
+      callback(node);
+      recursiveInOrder(node.right, callback);
+    }
+    recursiveInOrder(this.root, callback);
+  }
+
+  preOrder(callback) {
+    if (!callback) {
+      throw new Error("Need a callback function");
+    }
+
+    function recursivePreOrder(node, callback) {
+      if (node === null) return;
+      callback(node);
+      recursivePreOrder(node.left, callback);
+      recursivePreOrder(node.right, callback);
+    }
+    recursivePreOrder(this.root, callback);
+  }
+
+  postOrder(callback) {
+    if (!callback) {
+      throw new Error("Need a callback function");
+    }
+
+    function recursivePostOrder(node, callback) {
+      if (node === null) return;
+      recursivePostOrder(node.left, callback);
+      recursivePostOrder(node.right, callback);
+      callback(node);
+    }
+    recursivePostOrder(this.root, callback);
+  }
 }
 
 let tree = new Tree([1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324]);
