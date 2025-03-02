@@ -179,6 +179,50 @@ class Tree {
     }
     recursivePostOrder(this.root, callback);
   }
+
+  height(node = this.root) {
+    if (node === null) return -1;
+
+    let leftHeight = this.height(node.left);
+    let rightHeight = this.height(node.right);
+
+    return Math.max(leftHeight, rightHeight) + 1;
+  }
+
+  depth(node) {
+    function recursiveDepth(root, value, currentDepth = 0) {
+      if (root === null) return -1;
+      if (root.data === value) {
+        return currentDepth;
+      }
+      if (root.data > value) {
+        return recursiveDepth(root.left, value, currentDepth + 1);
+      } else if (root.data < value) {
+        return recursiveDepth(root.right, value, currentDepth + 1);
+      }
+      return -1;
+    }
+    return recursiveDepth(this.root, node.data);
+  }
+
+  isBalanced(root = this.root) {
+    if (root === null) return true;
+
+    if (this.isBalanced(root.left) && this.isBalanced(root.right)) {
+      let leftHeight = this.height(root.left);
+      let rightHeight = this.height(root.right);
+      return Math.abs(leftHeight - rightHeight) <= 1;
+    }
+    return false;
+  }
+
+  rebalance() {
+    let newArray = [];
+    this.levelOrder((node) => {
+      newArray.push(node.data);
+    });
+    this.root = this.buildTree(newArray);
+  }
 }
 
 let tree = new Tree([1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324]);
